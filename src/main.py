@@ -30,3 +30,25 @@ def alerta(tipo, ip):
     print(f"[ALERTA] {t} {tipo} origem={ip}")
     with open("alerts.log", "a") as f:
         f.write(f"{time.time()} {tipo} {ip}\n")
+
+
+def processa(p):
+    global learn_mode
+    if not p.haslayer(IP):
+        return
+    f = {
+        "ts": p.time,
+        "src": p[IP].src,
+        "dst": p[IP].dst,
+        "len": len(p),
+        "dport": p.dport if TCP in p or UDP in p else 0,
+        "flags": str(p[TCP].flags) if TCP in p else "",
+    }
+    ip = f["src"]
+    agora = time.time()
+
+    baseline_pps[ip].append((agora, 1))
+    baseline_bps[ip].append((agora, f["len"]))
+    baseline_uniq[ip].add(f["dport"])
+    corta(baseline_pps[ip], agora - WINDOW)
+    corta(baseline_bps[ip], agora - WINDOW)
