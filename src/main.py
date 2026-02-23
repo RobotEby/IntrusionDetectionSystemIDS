@@ -52,3 +52,26 @@ def processa(p):
     baseline_uniq[ip].add(f["dport"])
     corta(baseline_pps[ip], agora - WINDOW)
     corta(baseline_bps[ip], agora - WINDOW)
+
+    if learn_mode and agora - start > WINDOW:
+        learn_mode = False
+        print("-- Aprendizado encerrado. IDS ativo --")
+
+    if not learn_mode:
+        μ_pps, σ_pps = calc_stats(baseline_pps[ip])
+        μ_uniq = len(baseline_uniq[ip]) - 1 if len(baseline_uniq[ip]) > 1 else 0
+        σ_uniq = 2
+        if len(baseline_pps[ip]) > μ_pps + THRESHOLD * σ_pps:
+            alerta("DDoS", ip)
+        if len(baseline_uniq[ip]) > μ_uniq + THRESHOLD * σ_uniq:
+            alerta("PortScan", ip)
+        if f["flags"] == "S":
+            syn_counter[ip] += 1
+        elif "A" in f["flags"]:
+            syn_counter[ip] = 0
+        if syn_counter[ip] > SYN_MAX:
+            alerta("SYN-Flood", ip)
+
+
+print("Capturando... Ctrl-C para parar.")
+sniff(prn=processa, store=False, filter="ip")
