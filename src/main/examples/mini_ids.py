@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 from scapy.all import sniff, IP, TCP, UDP
 from collections import defaultdict, deque
-import time, os, statistics
+import time
+import statistics
 
 WINDOW = 60
+# deviations to consider anomalous
 THRESHOLD = 3
+# SYN threshold
 SYN_MAX = 100
 
 baseline_pps = defaultdict(deque)
