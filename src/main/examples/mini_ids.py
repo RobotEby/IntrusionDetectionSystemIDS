@@ -25,7 +25,7 @@ def corta(dq, limite):
 
 def calc_stats(dq):
     vals = [v for _, v in dq]
-    return statistics.mean(vals), statistics.stdev(vals) if len(vals) > 1 else (0, 0)
+    return (statistics.mean(vals), statistics.stdev(vals)) if len(vals) > 1 else (0, 0)
 
 
 def alerta(tipo, ip):
